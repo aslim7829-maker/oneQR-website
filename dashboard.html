@@ -9,7 +9,7 @@
 </style>
 </head>
 <body>
-<header class="top"><div class="shell nav"><a class="brand" href="index.html"><span class="mark">▦</span><span>oneqr<span style="color:#78a94c">.</span></span></a><nav class="navlinks"><a href="index.html">Home</a><a href="#profile">My business</a><a href="#qrPanel">My QR</a><a href="products.html" class="btn primary">Manage catalogue ↗</a><button class="btn light hidden" id="signOutBtn" type="button">Sign out</button></nav></div></header>
+<header class="top"><div class="shell nav"><a class="brand" href="index.html"><span class="mark">▦</span><span>oneqr<span style="color:#78a94c">.</span></span></a><nav class="navlinks"><a href="index.html">Home</a><a href="#profile">My business</a><a href="#qrPanel">My QR</a><a href="orders.html" class="btn light">Order inbox ↗</a><a href="products.html" class="btn primary">Manage catalogue ↗</a><button class="btn light hidden" id="signOutBtn" type="button">Sign out</button></nav></div></header>
 <main class="shell">
 <section class="hero"><div class="eyebrow"><span class="dot"></span> Stage 4 · Built-in catalogue + persistent merchant pages</div><h1>Your business.<br>One stable QR.</h1><p>Create your permanent business page, manage a built-in product/service catalogue and share one stable QR. Use only details and items you intend to make public.</p><div class="status-chip" id="connectionChip">● Checking configuration…</div></section>
 <div class="notice blue" id="configWarning"><strong>Setup needed:</strong> open <code>supabase-config.js</code> and enter your Supabase Project URL and publishable/anon key. Then run <code>schema.sql</code> in the Supabase SQL Editor. Never put a service-role/secret key in frontend files.</div>
@@ -84,5 +84,6 @@ $('copyLinkBtn').addEventListener('click',async()=>{if(!currentLink)return;try{a
 })();
 </script>
 </body></html>
+
 
 
