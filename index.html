@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#10251f" />
+<meta name="description" content="One QR code for every customer action. Give customers a simple way to explore, book, order, pay, and return." />
+<title>OneQR — One scan. Every business action.</title>
+<style>
+  :root {
+    --ink: #142820;
+    --muted: #64766d;
+    --paper: #f7f8f4;
+    --white: #ffffff;
+    --green: #b8f36b;
+    --green-dark: #315e36;
+    --mint: #e8f7dd;
+    --line: #e2e8df;
+    --dark: #10251f;
+    --dark-2: #17372c;
+    --orange: #ffb777;
+    --shadow: 0 24px 70px rgba(20, 40, 32, .10);
+    --radius: 24px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--paper); color: var(--ink); }
+  button, input, select, textarea { font: inherit; }
+  button, a { -webkit-tap-highlight-color: transparent; }
+  a { color: inherit; text-decoration: none; }
+  button { cursor: pointer; }
+  .shell { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+  .announcement { background: var(--dark); color: #dbe9d6; font-size: 12px; text-align: center; padding: 10px 16px; letter-spacing: .03em; }
+  .announcement strong { color: var(--green); font-weight: 750; }
+  header { position: sticky; top: 0; z-index: 20; background: rgba(247,248,244,.88); border-bottom: 1px solid rgba(226,232,223,.75); backdrop-filter: blur(16px); }
+  .nav { height: 76px; display:flex; align-items:center; justify-content:space-between; gap: 24px; }
+  .brand { display:flex; align-items:center; gap: 10px; font-size: 21px; font-weight: 850; letter-spacing: -.055em; }
+  .brand-mark { width: 34px; height:34px; display:grid; place-items:center; background: var(--green); color:var(--dark); border-radius: 11px; }
+  .brand-mark svg { width:22px;height:22px; }
+  .nav-links { display:flex; align-items:center; gap: 30px; color: #53665c; font-size: 13px; font-weight: 650; }
+  .nav-links a:hover { color: var(--ink); }
+  .btn { display:inline-flex; justify-content:center; align-items:center; gap: 9px; border: 0; border-radius: 999px; padding: 13px 19px; background: var(--dark); color:white; font-size: 13px; font-weight: 750; transition: transform .2s, background .2s, box-shadow .2s; }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 9px 24px rgba(16,37,31,.18); }
+  .btn-primary { background: var(--green); color: var(--dark); }
+  .btn-primary:hover { background: #c9ff85; }
+  .btn-light { background: white; color: var(--dark); border: 1px solid var(--line); }
+  .btn-ghost { background: transparent; color: var(--ink); border: 1px solid #ced9ce; }
+  .btn svg { width:16px;height:16px; }
+  .mobile-menu { display:none; border:1px solid var(--line); background:white; border-radius:12px; padding:10px; }
+  .mobile-menu svg { width:20px;height:20px; }
+  .hero { position:relative; overflow:hidden; padding: 76px 0 74px; }
+  .hero:before { content:""; position:absolute; width:570px;height:570px; border-radius:50%; background:radial-gradient(circle, rgba(184,243,107,.24), rgba(184,243,107,0) 68%); right:-120px;top:-170px; pointer-events:none; }
+  .hero-grid { display:grid; grid-template-columns: 1.02fr .98fr; gap: 58px; align-items:center; position:relative; }
+  .eyebrow { display:inline-flex; gap:8px; align-items:center; border:1px solid #dce8d2; background:#f0f7e9; color:#456542; padding:8px 12px; border-radius:999px; text-transform:uppercase; font-size:10px; font-weight:850; letter-spacing:.12em; }
+  .eyebrow-dot { width:7px;height:7px;border-radius:50%;background:#71b93c;box-shadow:0 0 0 4px rgba(113,185,60,.12); }
+  h1 { margin: 22px 0 20px; max-width: 640px; font-size: clamp(48px, 6.2vw, 76px); line-height: .99; letter-spacing: -.075em; font-weight: 820; }
+  h1 .highlight { position:relative; z-index:0; white-space:nowrap; }
+  h1 .highlight:after { content:""; position:absolute; left:-2px;right:-4px;bottom:5px;height:20px;background:var(--green);z-index:-1; transform:rotate(-1.5deg); border-radius:4px; }
+  .hero-copy { max-width: 510px; color:var(--muted); line-height:1.75; font-size:16px; }
+  .hero-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin-top:28px; }
+  .micro-proof { display:flex; flex-wrap:wrap; gap:20px; margin-top:28px; color:#66756b; font-size:11px; font-weight:650; }
+  .micro-proof span { display:flex; align-items:center; gap:7px; }
+  .micro-proof svg { width:15px;height:15px;color:#4d8544; }
+  .hero-visual { position:relative; min-height: 500px; display:grid; place-items:center; }
+  .visual-glow { position:absolute; width:420px;height:420px;border-radius:50%;background:#e8f3df; }
+  .orbit { position:absolute; width:470px;height:470px;border:1px dashed #cddfc4;border-radius:50%; }
+  .phone { position:relative; z-index:2; width:265px; padding:9px; border-radius:38px; background:#132a22; box-shadow:0 35px 80px rgba(18,43,32,.25); transform:rotate(-3deg); }
+  .phone-screen { border-radius:30px; overflow:hidden; background:white; min-height: 450px; }
+  .phone-top { display:flex; justify-content:center; padding:11px 0 7px; background:white; }
+  .notch { width:72px;height:5px;background:#172820;border-radius:20px; }
+  .mock-cover { margin:0 10px; border-radius:21px; background:#dff0d2; height:112px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; }
+  .mock-tag { font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.12em;color:#527449; }
+  .mock-store { font-size:23px;font-weight:850;letter-spacing:-.06em;line-height:1; }
+  .mock-address { font-size:10px;color:#668060; }
+  .mock-section { padding:16px 13px 7px; display:flex;align-items:center;justify-content:space-between; font-size:12px;font-weight:800; }
+  .mock-section small { color:#8a978d;font-size:9px;font-weight:650; }
+  .mock-actions { display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:8px 12px 13px; }
+  .mock-action { min-height:66px;border:1px solid #e7ece5;border-radius:13px;padding:8px 3px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;color:#385344;background:#fff;font-size:9px;font-weight:750; }
+  .mock-icon { display:grid;place-items:center;width:26px;height:26px;border-radius:8px;background:#eef7e8; }
+  .mock-icon svg { width:15px;height:15px; }
+  .mock-footer { margin:2px 12px 12px;padding:11px;border-radius:12px;background:#152e24;color:#fff;display:flex;justify-content:space-between;align-items:center;font-size:10px;font-weight:750; }
+  .mock-footer b { color:var(--green); }
+  .float-card { position:absolute; z-index:3; background:#fff; border:1px solid #e8ede5; box-shadow:var(--shadow); border-radius:17px; padding:13px 15px; }
+  .float-card.left { left:-3px;top:105px;transform:rotate(-5deg); }
+  .float-card.right { right:-8px;bottom:80px;transform:rotate(4deg); }
+  .float-label { color:#7a897e;font-size:9px;text-transform:uppercase;letter-spacing:.1em;font-weight:800; }
+  .float-value { margin-top:6px;font-size:17px;font-weight:850;letter-spacing:-.04em; }
+  .float-sub { color:#5d8b43;font-size:10px;margin-top:4px;font-weight:700; }
+  .float-qr { display:flex;align-items:center;gap:10px; }
+  .tiny-qr { width:42px;height:42px;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:3px;background:#fff;border:1px solid #eef1eb;border-radius:5px; }
+  .tiny-qr i { background:#1c382b;border-radius:1px; }
+  .tiny-qr i:nth-child(3n),.tiny-qr i:nth-child(5n+1),.tiny-qr i:nth-child(17),.tiny-qr i:nth-child(24) { background:#fff; }
+  .section { padding:88px 0; }
+  .section-white { background:#fff; }
+  .section-dark { background:var(--dark);color:#fff; }
+  .section-head { max-width:650px;margin-bottom:38px; }
+  .kicker { color:#5f8e46;font-size:10px;font-weight:850;letter-spacing:.15em;text-transform:uppercase; }
+  h2 { font-size:clamp(34px,4.3vw,50px);line-height:1.04;letter-spacing:-.065em;margin:13px 0 14px;font-weight:820; }
+  .section-head p { color:var(--muted);font-size:15px;line-height:1.75;margin:0; }
+  .section-dark .section-head p { color:#b4c6ba; }
+  .problem-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:15px; }
+  .problem-card { background:#f7f9f5;border:1px solid #e7ece4;border-radius:22px;padding:24px;min-height:200px; }
+  .problem-num { color:#80a76b;font-size:11px;font-weight:850;letter-spacing:.1em; }
+  .problem-card h3 { font-size:19px;letter-spacing:-.04em;margin:25px 0 9px; }
+  .problem-card p { margin:0;color:#6d7b71;font-size:13px;line-height:1.7; }
+  .demo-grid { display:grid;grid-template-columns:.87fr 1.13fr;gap:45px;align-items:start; }
+  .demo-intro { position:sticky;top:110px; }
+  .demo-intro p { color:#b4c6ba;line-height:1.8;font-size:14px; }
+  .demo-note { display:flex;gap:10px;margin-top:25px;color:#c9d6ce;font-size:11px;line-height:1.6; }
+  .demo-note svg { flex:none;width:17px;height:17px;color:var(--green); }
+  .demo-panel { background:#f7f9f5;color:var(--ink);border-radius:28px;padding:21px;box-shadow:0 25px 70px rgba(0,0,0,.15); }
+  .demo-top { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px; }
+  .demo-top h3 { font-size:15px;margin:0;letter-spacing:-.03em; }
+  .live-pill { display:flex;align-items:center;gap:6px;background:#e5f4de;color:#477a3a;border-radius:999px;padding:7px 9px;font-size:9px;font-weight:850;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap; }
+  .live-pill i { width:5px;height:5px;border-radius:50%;background:#60ad40; }
+  .select-wrap { margin-bottom:14px; }
+  .select-wrap label { display:block;font-size:10px;font-weight:800;color:#69796e;margin-bottom:7px; }
+  .business-select { width:100%;background:white;border:1px solid #dce5d9;border-radius:13px;padding:13px 14px;color:var(--ink);outline:none; }
+  .business-select:focus { border-color:#78ad5b;box-shadow:0 0 0 3px rgba(120,173,91,.15); }
+  .merchant-preview { background:white;border:1px solid #e5ebe2;border-radius:21px;overflow:hidden; }
+  .merchant-banner { background:var(--mint);padding:18px;display:flex;justify-content:space-between;gap:12px;align-items:center; }
+  .merchant-category { font-size:9px;color:#58784c;text-transform:uppercase;letter-spacing:.11em;font-weight:850; }
+  .merchant-name { font-size:24px;font-weight:850;letter-spacing:-.06em;margin-top:5px; }
+  .merchant-description { font-size:11px;color:#667d60;margin-top:5px; }
+  .merchant-logo { width:54px;height:54px;border-radius:16px;background:#fff;display:grid;place-items:center;color:#355c34;box-shadow:0 5px 15px rgba(30,70,30,.07); }
+  .merchant-logo svg { width:26px;height:26px; }
+  .merchant-actions { display:grid;grid-template-columns:repeat(3,1fr);gap:9px;padding:15px; }
+  .action-tile { border:1px solid #e6ece3;background:#fff;border-radius:15px;min-height:96px;padding:12px 5px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;color:#304d3b;transition:.2s; }
+  .action-tile:hover { border-color:#a4cf8d;background:#f7fcf3;transform:translateY(-2px); }
+  .action-icon { display:grid;place-items:center;width:32px;height:32px;border-radius:10px;background:#eef7e8; }
+  .action-icon svg { width:17px;height:17px; }
+  .action-tile span:last-child { text-align:center;font-size:10px;font-weight:750; }
+  .merchant-bottom { margin:0 15px 15px;display:flex;justify-content:space-between;gap:12px;align-items:center;border-radius:13px;background:var(--dark);color:#fff;padding:12px 14px; }
+  .merchant-bottom div:first-child { font-size:10px;font-weight:750; }
+  .merchant-bottom small { display:block;font-weight:500;color:#bacbbd;font-size:9px;margin-top:3px; }
+  .merchant-bottom button { border:0;background:var(--green);color:var(--dark);font-size:10px;font-weight:850;padding:9px 12px;border-radius:999px;white-space:nowrap; }
+  .demo-foot { color:#7c897e;font-size:10px;line-height:1.6;padding:12px 3px 0; }
+  .features-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:15px; }
+  .feature { padding:24px;border:1px solid var(--line);border-radius:22px;background:white; }
+  .feature-icon { width:44px;height:44px;border-radius:14px;background:#eff7e8;display:grid;place-items:center;color:#385e36; }
+  .feature-icon svg { width:21px;height:21px; }
+  .feature h3 { font-size:17px;letter-spacing:-.035em;margin:21px 0 9px; }
+  .feature p { color:var(--muted);font-size:13px;line-height:1.7;margin:0; }
+  .steps { display:grid;grid-template-columns:repeat(3,1fr);gap:26px; }
+  .step { border-top:1px solid #395448;padding-top:19px; }
+  .step-number { color:var(--green);font-size:11px;font-weight:850;letter-spacing:.12em; }
+  .step h3 { font-size:19px;letter-spacing:-.04em;margin:15px 0 9px; }
+  .step p { margin:0;color:#bacbbf;font-size:13px;line-height:1.8; }
+  .pricing-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:15px;align-items:stretch; }
+  .price-card { position:relative;background:#fff;border:1px solid var(--line);border-radius:22px;padding:25px;display:flex;flex-direction:column; }
+  .price-card.featured { border:2px solid var(--dark);box-shadow:var(--shadow); }
+  .popular { position:absolute;right:16px;top:16px;background:var(--green);color:var(--dark);font-size:9px;font-weight:850;text-transform:uppercase;letter-spacing:.08em;border-radius:999px;padding:7px 9px; }
+  .plan-name { font-size:14px;font-weight:850; }
+  .plan-desc { color:var(--muted);font-size:12px;line-height:1.6;margin-top:7px;min-height:40px; }
+  .plan-price { font-size:31px;font-weight:850;letter-spacing:-.07em;margin:24px 0 5px; }
+  .plan-price span { font-size:11px;letter-spacing:0;font-weight:650;color:#7b897e; }
+  .plan-price-note { font-size:10px;color:#829086; }
+  .plan-rule { height:1px;background:var(--line);margin:19px 0; }
+  .plan-features { list-style:none;margin:0 0 23px;padding:0;display:grid;gap:12px;flex:1; }
+  .plan-features li { display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#55665a;line-height:1.5; }
+  .plan-features svg { flex:none;width:15px;height:15px;color:#609b47;margin-top:1px; }
+  .price-card .btn { width:100%; }
+  .pricing-disclaimer { margin-top:16px;font-size:10px;line-height:1.6;color:#87948a; }
+  .cta-wrap { padding:68px 0; }
+  .cta-card { background:var(--green);border-radius:30px;padding:50px;display:grid;grid-template-columns:1fr auto;gap:25px;align-items:center;overflow:hidden;position:relative; }
+  .cta-card:after { content:"";position:absolute;width:260px;height:260px;border:1px solid rgba(20,40,32,.14);border-radius:50%;right:140px;top:-160px;box-shadow:0 0 0 35px rgba(20,40,32,.035),0 0 0 70px rgba(20,40,32,.025);pointer-events:none; }
+  .cta-card h2 { max-width:590px;margin:0 0 12px;font-size:clamp(32px,4vw,44px); }
+  .cta-card p { color:#47613f;max-width:560px;font-size:14px;line-height:1.7;margin:0; }
+  .cta-card .btn { background:var(--dark);color:#fff;position:relative;z-index:1;white-space:nowrap; }
+  footer { background:#fff;border-top:1px solid var(--line);padding:30px 0; }
+  .footer-row { display:flex;align-items:center;justify-content:space-between;gap:25px; }
+  .footer-note { color:#849087;font-size:10px;line-height:1.6;max-width:490px; }
+  .footer-links { display:flex;gap:20px;color:#647369;font-size:11px;font-weight:650; }
+  .modal-backdrop { display:none;position:fixed;inset:0;background:rgba(8,22,16,.58);z-index:50;padding:20px;align-items:center;justify-content:center;backdrop-filter:blur(5px); }
+  .modal-backdrop.open { display:flex; }
+  .modal { position:relative;background:#fff;border-radius:24px;padding:30px;width:min(480px,100%);max-height:90vh;overflow:auto;box-shadow:0 30px 90px rgba(0,0,0,.25); }
+  .modal-close { position:absolute;right:18px;top:18px;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;background:#fff;display:grid;place-items:center; }
+  .modal-close svg { width:16px;height:16px; }
+  .modal h3 { font-size:26px;letter-spacing:-.06em;margin:7px 38px 9px 0; }
+  .modal p { color:var(--muted);font-size:13px;line-height:1.7; }
+  .form-field { display:grid;gap:7px;margin-top:15px; }
+  .form-field label { font-size:11px;font-weight:800;color:#53645a; }
+  .form-field input,.form-field select,.form-field textarea { width:100%;padding:12px 13px;border:1px solid #dce5da;border-radius:12px;background:#fbfcfa;outline:none;color:var(--ink); }
+  .form-field input:focus,.form-field select:focus,.form-field textarea:focus { border-color:#84b86a;box-shadow:0 0 0 3px rgba(132,184,106,.15); }
+  .modal form .btn { width:100%;margin-top:20px; }
+  .form-status { display:none;background:#edf7e6;color:#365e2f;border-radius:12px;padding:13px;margin-top:15px;font-size:12px;line-height:1.6; }
+  .form-status.show { display:block; }
+  .action-detail { display:flex;gap:13px;align-items:flex-start;background:#f5f8f2;padding:15px;border-radius:15px;margin:20px 0; }
+  .action-detail .feature-icon { flex:none; }
+  .action-detail strong { display:block;font-size:13px;margin:2px 0 4px; }
+  .action-detail span { color:#6b7b6e;font-size:11px;line-height:1.6;display:block; }
+  .toast { position:fixed;bottom:20px;left:50%;transform:translate(-50%,20px);background:var(--dark);color:white;border-radius:999px;padding:13px 18px;font-size:12px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:80;box-shadow:var(--shadow);max-width:calc(100% - 30px);text-align:center; }
+  .toast.show { opacity:1;transform:translate(-50%,0); }
+  :focus-visible { outline:3px solid #6ba74d;outline-offset:3px; }
+  @media(max-width:900px) {
+    .hero-grid { gap:24px; }
+    .hero-visual { transform:scale(.9);margin-left:-10px;margin-right:-10px; }
+    .nav-links { gap:17px; }
+    .demo-grid { gap:25px; }
+    .cta-card { padding:38px; }
+  }
+  @media(max-width:720px) {
+    .shell { width:min(100% - 32px,560px); }
+    .nav { height:66px; }
+    .nav-links { display:none;position:absolute;top:66px;left:0;right:0;padding:18px 22px 22px;background:var(--paper);border-bottom:1px solid var(--line);flex-direction:column;align-items:stretch;gap:0; }
+    .nav-links.open { display:flex; }
+    .nav-links a { padding:13px 4px;border-bottom:1px solid var(--line); }
+    .nav-links .btn { margin-top:14px; }
+    .mobile-menu { display:grid;place-items:center; }
+    .nav > .btn { display:none; }
+    .hero { padding:54px 0 35px; }
+    .hero-grid { grid-template-columns:1fr;gap:5px; }
+    h1 { font-size:clamp(48px,13vw,67px); }
+    .hero-copy { font-size:14px; }
+    .hero-visual { min-height:440px;transform:scale(.86);margin:-12px -25px -20px; }
+    .float-card.left { left:0; }
+    .float-card.right { right:0; }
+    .section { padding:65px 0; }
+    .problem-grid,.features-grid,.steps,.pricing-grid { grid-template-columns:1fr; }
+    .problem-card { min-height:auto; }
+    .problem-card h3 { margin-top:17px; }
+    .demo-grid { grid-template-columns:1fr; }
+    .demo-intro { position:static; }
+    .merchant-actions { gap:7px;padding:11px; }
+    .action-tile { min-height:88px; }
+    .cta-wrap { padding:45px 0; }
+    .cta-card { grid-template-columns:1fr;padding:30px 24px; }
+    .cta-card:after { right:-90px; }
+    .cta-card .btn { justify-self:start; }
+    .footer-row { flex-direction:column;align-items:flex-start; }
+    .footer-links { flex-wrap:wrap; }
+  }
+  @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important;transition:none!important; } }
+</style>
+</head>
+<body>
+<div class="announcement"><strong>Early concept preview</strong> &nbsp;·&nbsp; One QR, many useful customer actions</div>
+<header>
+  <div class="shell nav">
+    <a class="brand" href="#top" aria-label="OneQR home">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v6h-6v-2" stroke-linejoin="round"/></svg></span>
+      <span>oneqr<span style="color:#7ba94c">.</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Main navigation">
+      <a href="#how-it-works">How it works</a>
+      <a href="#demo">Live demo</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <button class="btn btn-primary" data-open-lead>Get early access <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+    </nav>
+    <button class="mobile-menu" id="mobileMenu" aria-label="Toggle navigation" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    <button class="btn btn-primary" data-open-lead>Get early access <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button>
+  </div>
+</header>
+<main id="top">
+  <section class="hero">
+    <div class="shell hero-grid">
+      <div>
+        <div class="eyebrow"><span class="eyebrow-dot"></span> A smarter front door for business</div>
+        <h1>One scan.<br/><span class="highlight">Every action.</span></h1>
+        <p class="hero-copy">Give every customer a simpler way to interact with your business. One QR opens a mobile-friendly page to browse, book, order, access records and come back again.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#demo">Explore the interactive demo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+          <a class="btn btn-ghost" href="#how-it-works">How it works</a>
+        </div>
+        <div class="micro-proof">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>No customer app required</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Built for mobile</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Works alongside existing tools</span>
+        </div>
+      </div>
+      <div class="hero-visual" aria-label="Illustration of a merchant's mobile customer page">
+        <div class="visual-glow"></div><div class="orbit"></div>
+        <div class="float-card left"><div class="float-label">One QR</div><div class="float-qr"><div class="tiny-qr" aria-hidden="true"></div><div><div class="float-value">Many actions</div><div class="float-sub">One simple entry point</div></div></div></div>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-top"><div class="notch"></div></div>
+            <div class="mock-cover"><div class="mock-tag">Your local favourite</div><div class="mock-store">Green Basket</div><div class="mock-address">Fresh finds, close to home</div></div>
+            <div class="mock-section">What can we help with? <small>VIEW ALL</small></div>
+            <div class="mock-actions">
+              <div class="mock-action"><span class="mock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h2l2.3 11.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg></span>Shop</div>
+              <div class="mock-action"><span class="mock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v15H4zM8 3v4M16 3v4M4 10h16"/></svg></span>Deals</div>
+              <div class="mock-action"><span class="mock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h4"/></svg></span>Receipt</div>
+              <div class="mock-action"><span class="mock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg></span>Pay</div>
+              <div class="mock-action"><span class="mock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>Order</div>
+              <div class="mock-action"><span class="mock-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/></svg></span>Rewards</div>
+            </div>
+            <div class="mock-footer"><span>Good to see you again</span><b>♡ Rewards</b></div>
+          </div>
+        </div>
+        <div class="float-card right"><div class="float-label">Designed for real life</div><div class="float-value">Scan → Take action</div><div class="float-sub">Simple for customers. Useful for owners.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-white" id="problem">
+    <div class="shell">
+      <div class="section-head"><div class="kicker">The problem</div><h2>Customers shouldn't need a different app for every shop.</h2><p>Bookings live in one place. Menus in another. Receipts, repair updates and loyalty in others. OneQR aims to make the next step obvious—right where the customer is.</p></div>
+      <div class="problem-grid">
+        <article class="problem-card"><div class="problem-num">01 / TOO MANY TOOLS</div><h3>Disconnected touchpoints</h3><p>Customers jump between social pages, phone calls, forms and separate services just to complete a simple task.</p></article>
+        <article class="problem-card"><div class="problem-num">02 / LOST FOLLOW-UPS</div><h3>Good customers don't return</h3><p>Small businesses can struggle to turn a first visit into a repeat booking, reorder or long-term relationship.</p></article>
+        <article class="problem-card"><div class="problem-num">03 / TOO MUCH FRICTION</div><h3>Digital tools feel complicated</h3><p>Owners need practical ways to serve customers without replacing every system they already use.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-dark" id="demo">
+    <div class="shell demo-grid">
+      <div class="demo-intro">
+        <div class="kicker" style="color:var(--green)">Try the concept</div>
+        <h2>Same QR idea.<br/>Different business.</h2>
+        <p>Choose a business type and see how the page adapts. This prototype demonstrates the customer experience—not a live merchant account or payment system.</p>
+        <div class="demo-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7h.01"/></svg><span>The QR illustration on this page is decorative. The demo actions open examples and do not create real bookings, orders, receipts or payments.</span></div>
+      </div>
+      <div class="demo-panel">
+        <div class="demo-top"><h3>Customer page preview</h3><span class="live-pill"><i></i> Interactive demo</span></div>
+        <div class="select-wrap"><label for="businessType">SELECT A BUSINESS TYPE</label><select id="businessType" class="business-select">
+          <option value="grocery">Grocery / Retail shop</option><option value="salon">Salon / Beauty studio</option><option value="garage">Garage / Vehicle service</option><option value="restaurant">Restaurant / Café</option><option value="repair">Repair shop</option>
+        </select></div>
+        <div class="merchant-preview" aria-live="polite">
+          <div class="merchant-banner"><div><div class="merchant-category" id="merchantCategory">GROCERY · RETAIL</div><div class="merchant-name" id="merchantName">Green Basket</div><div class="merchant-description" id="merchantDescription">Your neighbourhood shop, made easier.</div></div><div class="merchant-logo" id="merchantLogo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10h18l-2 10H5L3 10Z"/><path d="M2 10 5 4h14l3 6M9 10v10M15 10v10"/></svg></div></div>
+          <div class="merchant-actions" id="merchantActions"></div>
+          <div class="merchant-bottom"><div id="merchantBottomText">A little closer to your local favourites<small>Demo content · No live transaction</small></div><button id="merchantBottomButton">Explore page ↗</button></div>
+        </div>
+        <div class="demo-foot">Demo content is illustrative. Features shown may require third-party integrations, merchant setup or customer verification in a real product.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-white" id="features">
+    <div class="shell">
+      <div class="section-head"><div class="kicker">Designed to be useful</div><h2>A front door, not another walled garden.</h2><p>The product should work with the way businesses already operate, adding a simple customer interface around their existing tools wherever practical.</p></div>
+      <div class="features-grid">
+        <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v6h-6v-2"/></svg></div><h3>One persistent QR</h3><p>Keep the same printed code while updating the actions, offers and information behind it.</p></article>
+        <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div><h3>Industry-aware actions</h3><p>Show the most relevant tasks for a salon, shop, restaurant, garage or repair service.</p></article>
+        <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-7"/></svg></div><h3>Useful owner insights</h3><p>Help owners see which actions customers use and where people stop—not vanity metrics alone.</p></article>
+        <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="9"/></svg></div><h3>Works with existing tools</h3><p>Link to approved payment providers, WhatsApp, booking platforms or business systems where integrations are available.</p></article>
+        <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Secure customer records</h3><p>Keep private records behind appropriate verification instead of exposing them through a public QR link.</p></article>
+        <article class="feature"><div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v14H4zM8 9h8M8 13h5"/><path d="M8 2v3M16 2v3"/></svg></div><h3>Simple repeat journeys</h3><p>Make rebooking, reordering and finding a previous service easier—with customer consent and clear controls.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section-dark" id="how-it-works">
+    <div class="shell">
+      <div class="section-head"><div class="kicker" style="color:var(--green)">How it works</div><h2>Easy on the counter.<br/>Useful behind it.</h2><p>A merchant setup should take minutes, not a digital transformation project.</p></div>
+      <div class="steps">
+        <article class="step"><div class="step-number">STEP 01</div><h3>Create your page</h3><p>Add your business details, choose your industry and enable the actions you actually offer.</p></article>
+        <article class="step"><div class="step-number">STEP 02</div><h3>Display your QR</h3><p>Print the code for your counter, table, entrance, receipt or service handover point.</p></article>
+        <article class="step"><div class="step-number">STEP 03</div><h3>Help customers act</h3><p>Customers scan, choose an action and continue through a supported workflow or connected service.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="pricing">
+    <div class="shell">
+      <div class="section-head"><div class="kicker">Early pricing hypothesis</div><h2>Start small. Add tools when they're valuable.</h2><p>Indicative packages to test with Sri Lankan merchants. These are not final or currently purchasable plans.</p></div>
+      <div class="pricing-grid">
+        <article class="price-card"><div class="plan-name">Starter</div><div class="plan-desc">For a business that needs a clean digital front door.</div><div class="plan-price">Free <span>/ concept</span></div><div class="plan-price-note">Proposed free entry plan</div><div class="plan-rule"></div><ul class="plan-features"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>One business page</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Basic business information</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Links to existing channels</li></ul><button class="btn btn-light" data-plan="Starter">Test this plan</button></article>
+        <article class="price-card featured"><span class="popular">Proposed</span><div class="plan-name">Pro</div><div class="plan-desc">For businesses that want more customer actions in one place.</div><div class="plan-price">LKR 1,500 <span>/ month*</span></div><div class="plan-price-note">Illustrative price for validation</div><div class="plan-rule"></div><ul class="plan-features"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Custom action buttons</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Basic scan and action insights</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Offers and repeat-visit links</li></ul><button class="btn btn-primary" data-plan="Pro">Test this plan</button></article>
+        <article class="price-card"><div class="plan-name">Business</div><div class="plan-desc">For multi-staff teams or businesses with more involved workflows.</div><div class="plan-price">Let's talk</div><div class="plan-price-note">Pricing to be researched</div><div class="plan-rule"></div><ul class="plan-features"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Multi-staff and branches</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Workflow and system integrations</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg>Additional controls and reports</li></ul><button class="btn btn-light" data-plan="Business">Discuss this plan</button></article>
+      </div>
+      <div class="pricing-disclaimer">*Illustrative pricing only. Nothing is being sold or billed from this prototype. Final pricing depends on merchant interviews, operating costs and supported integrations. Payment processing fees, if any, are set by the relevant provider.</div>
+    </div>
+  </section>
+
+  <section class="cta-wrap">
+    <div class="shell"><div class="cta-card"><div><div class="kicker" style="color:#3d6834;margin-bottom:12px">Built around real businesses</div><h2>Your customers are already holding the interface.</h2><p>Help them take the next step with one scan. We're looking for Sri Lankan businesses to shape the first version with us.</p></div><button class="btn" data-open-lead>Join the early-access research <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></button></div></div>
+  </section>
+</main>
+<footer>
+  <div class="shell footer-row">
+    <a class="brand" href="#top"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v6h-6v-2" stroke-linejoin="round"/></svg></span><span>oneqr<span style="color:#7ba94c">.</span></span></a>
+    <div class="footer-note">An early-stage concept for a universal merchant action layer. OneQR is not a bank, payment processor or official LankaQR service. Integration and payment features depend on authorized providers.</div>
+    <div class="footer-links"><a href="#features">Features</a><a href="#demo">Demo</a><a href="#top">Back to top ↑</a></div>
+  </div>
+</footer>
+
+<div class="modal-backdrop" id="leadModal" role="dialog" aria-modal="true" aria-labelledby="leadTitle">
+  <div class="modal"><button class="modal-close" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
+    <div class="kicker">Early-access research</div><h3 id="leadTitle">Help shape OneQR.</h3><p>Tell us a little about your business. This prototype will validate your details in the browser only; it does not send or save them to a server.</p>
+    <form id="leadForm">
+      <div class="form-field"><label for="leadName">Your name</label><input id="leadName" name="name" required maxlength="80" placeholder="e.g. Nimal Perera" autocomplete="name" /></div>
+      <div class="form-field"><label for="leadBusiness">Business name</label><input id="leadBusiness" name="business" required maxlength="100" placeholder="Your business" /></div>
+      <div class="form-field"><label for="leadType">Business type</label><select id="leadType" name="type" required><option value="">Choose a business type</option><option>Grocery / Retail</option><option>Salon / Beauty</option><option>Garage / Vehicle service</option><option>Restaurant / Café</option><option>Repair shop</option><option>Other small business</option></select></div>
+      <div class="form-field"><label for="leadContact">Contact email or phone (optional)</label><input id="leadContact" name="contact" maxlength="120" placeholder="Email or phone" /></div>
+      <div class="form-status" id="leadStatus" role="status"></div><button class="btn btn-primary" type="submit">Record demo response</button>
+    </form>
+  </div>
+</div>
+<div class="modal-backdrop" id="actionModal" role="dialog" aria-modal="true" aria-labelledby="actionTitle"><div class="modal"><button class="modal-close" data-close-modal aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg></button><div class="kicker" id="actionCategory">DEMO ACTION</div><h3 id="actionTitle">Example action</h3><p id="actionIntro">This is a product concept preview.</p><div class="action-detail"><div class="feature-icon" id="actionIcon"></div><div><strong id="actionDetailTitle">How this could work</strong><span id="actionDetailText">A real version would connect this action to a supported workflow or merchant system.</span></div></div><button class="btn btn-primary" data-close-modal style="width:100%">Back to demo</button></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+  const icon = (name) => {
+    const common = {
+      bag:'<path d="M5 8h14l-1 12H6L5 8Z"/><path d="M9 8a3 3 0 0 1 6 0"/>',
+      tag:'<path d="M20 13 13 20 3 10V4h6l11 9Z"/><circle cx="7.5" cy="7.5" r="1"/>',
+      receipt:'<path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3Z"/><path d="M8 8h8M8 12h8M8 16h4"/>',
+      card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>',
+      order:'<path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+      star:'<path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9z"/>',
+      calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3"/>',
+      scissors:'<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="m8.5 8.5 12 12M8.5 15.5l12-12"/>',
+      heart:'<path d="M20.8 8.7c0 5.1-8.8 10.3-8.8 10.3S3.2 13.8 3.2 8.7A4.7 4.7 0 0 1 12 6.2a4.7 4.7 0 0 1 8.8 2.5Z"/>',
+      car:'<path d="m5 11 2-5h10l2 5M4 11h16l1 5v3h-3v-2H6v2H3v-3l1-5Z"/><circle cx="7" cy="14" r="1"/><circle cx="17" cy="14" r="1"/>',
+      file:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v5h5M9 12h6M9 16h6"/>',
+      clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+      wrench:'<path d="M14 7a5 5 0 0 0-6.5 6.5L3 18l3 3 4.5-4.5A5 5 0 0 0 17 10l-3 3-3-3 3-3Z"/>',
+      message:'<path d="M21 11.5a8.5 8.5 0 0 1-12.3 7.6L3 21l1.9-5.7A8.5 8.5 0 1 1 21 11.5Z"/><path d="M8 11h8M8 14h5"/>',
+      map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15M15 6v15"/>',
+      check:'<path d="m5 12 4 4L19 6"/>',
+      clock2:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>',
+      truck:'<path d="M3 6h11v11H3zM14 10h4l3 3v4h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>',
+      search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
+      home:'<path d="m3 11 9-8 9 8v9H3z"/><path d="M9 20v-6h6v6"/>',
+      gift:'<rect x="3" y="8" width="18" height="13" rx="1"/><path d="M2 8h20v4H2zM12 8v13M12 8H7a2.5 2.5 0 1 1 2.5-2.5L12 8ZM12 8h5a2.5 2.5 0 1 0-2.5-2.5L12 8Z"/>',
+      tools:'<path d="m14 7 3 3M4 20l7-7M13 6a5 5 0 0 0 6 6l-5 5-6-6 5-5Z"/>',
+      menu:'<path d="M4 6h16M4 12h16M4 18h16"/>',
+      camera:'<path d="M4 7h4l2-3h4l2 3h4v13H4z"/><circle cx="12" cy="13" r="4"/>',
+      utensils:'<path d="M7 3v7M4 3v4a3 3 0 0 0 6 0V3M7 10v11M16 3v18M16 3c4 2 4 7 0 9"/>',
+      sparkles:'<path d="m12 3 1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/>',
+      phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/>',
+    };
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(common[name]||common.sparkles)+'</svg>';
+  };
+  const businesses = {
+    grocery:{category:'GROCERY · RETAIL',name:'Green Basket',description:'Your neighbourhood shop, made easier.',icon:'bag',bottom:'A little closer to your local favourites',actions:[['Shop products','bag','Browse a sample product list and product details.'],['Today’s deals','tag','Show offers configured by this merchant.'],['My receipts','receipt','Retrieve a receipt after secure customer or transaction verification.'],['Pay bill','card','Continue to an authorized payment method or provider.'],['Place an order','order','Submit a basket or contact the shop to confirm availability.'],['Rewards','star','View loyalty benefits if the business has enabled a supported program.']]},
+    salon:{category:'SALON · BEAUTY',name:'Luna Studio',description:'A little time, just for you.',icon:'scissors',bottom:'Your next good hair day starts here',actions:[['Services','scissors','Browse services, descriptions and indicative prices.'],['Book a visit','calendar','Choose a service and request an available appointment.'],['Membership','heart','Explore membership or loyalty offers managed by the salon.'],['Pay invoice','card','Open the merchant’s supported payment process.'],['My receipts','receipt','Access a past receipt after the appropriate verification.'],['Leave feedback','message','Share feedback through a merchant-configured form.']]},
+    garage:{category:'GARAGE · VEHICLE SERVICE',name:'Northline Garage',description:'Care for your car, without the guesswork.',icon:'car',bottom:'Keep your vehicle moving with confidence',actions:[['Book service','calendar','Request a service appointment with the garage.'],['Vehicle history','file','Retrieve records only after confirming the customer and vehicle identity.'],['Get an estimate','receipt','Submit a service request and receive an estimate from the garage.'],['Track repair','clock','Check status using a private job reference and verification.'],['Pay invoice','card','Continue to an authorized payment provider.'],['Warranty','shield','Review applicable warranty terms linked to a verified job or part.']]},
+    restaurant:{category:'RESTAURANT · CAFÉ',name:'Table & Thyme',description:'Good food. A smoother visit.',icon:'utensils',bottom:'Save room for something good',actions:[['View menu','utensils','Browse the merchant’s current menu and item details.'],['Order food','bag','Start an order subject to menu availability and merchant confirmation.'],['Book a table','calendar','Request a reservation based on the restaurant’s available process.'],['Pay bill','card','Continue to the payment process supported by the merchant.'],['My receipts','receipt','Retrieve a receipt after suitable verification.'],['Rewards','star','See current rewards if a loyalty system is connected.']]},
+    repair:{category:'REPAIR · SERVICE',name:'FixPoint Workshop',description:'Repairs made easier to follow.',icon:'wrench',bottom:'Know what’s next with your repair',actions:[['Track repair','clock','Check progress using a private job reference and customer verification.'],['Approve estimate','receipt','Review an estimate before confirming the work.'],['Find parts','search','Ask about parts availability or compatible replacement parts.'],['Book a visit','calendar','Request an appointment or drop-off time.'],['Pay invoice','card','Continue to a supported payment option.'],['Warranty','file','View warranty terms associated with a verified repair.']]}
+  };
+  const $ = id => document.getElementById(id);
+  const typeSelect = $('businessType');
+  const actionModal = $('actionModal');
+  let toastTimer;
+  const showToast = (msg) => { const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer=setTimeout(()=>t.classList.remove('show'),3000); };
+  const currentBusiness = () => businesses[typeSelect.value] || businesses.grocery;
+  function renderBusiness(){
+    const b=currentBusiness();
+    $('merchantCategory').textContent=b.category;
+    $('merchantName').textContent=b.name;
+    $('merchantDescription').textContent=b.description;
+    $('merchantLogo').innerHTML=icon(b.icon);
+    $('merchantBottomText').innerHTML=b.bottom+'<small>Demo content · No live transaction</small>';
+    $('merchantActions').innerHTML='';
+    b.actions.forEach((a,i)=>{
+      const button=document.createElement('button'); button.type='button'; button.className='action-tile';
+      button.innerHTML='<span class="action-icon">'+icon(a[1])+'</span><span>'+a[0]+'</span>';
+      button.addEventListener('click',()=>openAction(a));
+      $('merchantActions').appendChild(button);
+    });
+    $('merchantBottomButton').onclick=()=>openAction(['Explore the business page','sparkles','In a live product, this section could show announcements, hours, location and configured customer actions.']);
+  }
+  function openAction(a){
+    $('actionCategory').textContent=currentBusiness().category+' · PREVIEW';
+    $('actionTitle').textContent=a[0];
+    $('actionIntro').textContent='You selected “'+a[0]+'” on '+currentBusiness().name+'. This is an illustrative interaction in the OneQR prototype.';
+    $('actionIcon').innerHTML=icon(a[1]);
+    $('actionDetailTitle').textContent='What a live version could do';
+    $('actionDetailText').textContent=a[2]+' This demo does not send data, make bookings or process payments.';
+    actionModal.classList.add('open');
+  }
+  typeSelect.addEventListener('change',renderBusiness);
+  renderBusiness();
+  const leadModal=$('leadModal');
+  function openModal(modal){modal.classList.add('open');document.body.style.overflow='hidden';const first=modal.querySelector('input,select,button');if(first) setTimeout(()=>first.focus(),30);}
+  function closeModal(modal){modal.classList.remove('open');if(!document.querySelector('.modal-backdrop.open'))document.body.style.overflow='';}
+  document.querySelectorAll('[data-open-lead]').forEach(b=>b.addEventListener('click',()=>openModal(leadModal)));
+  document.querySelectorAll('[data-close-modal]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.modal-backdrop.open').forEach(closeModal);}));
+  document.querySelectorAll('.modal-backdrop').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)closeModal(m);}));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal-backdrop.open').forEach(closeModal);});
+  document.querySelectorAll('[data-plan]').forEach(b=>b.addEventListener('click',()=>{
+    openModal(leadModal);
+    const type=$('leadType'); if(type && !type.value) type.value='Other small business';
+    $('leadTitle').textContent='Explore the '+b.dataset.plan+' plan.';
+    showToast('Plan selected for research — no purchase or payment is made.');
+  }));
+  $('leadForm').addEventListener('submit',e=>{
+    e.preventDefault();
+    const name=$('leadName').value.trim();
+    const business=$('leadBusiness').value.trim();
+    const type=$('leadType').value;
+    if(!name||!business||!type){return;}
+    const status=$('leadStatus');
+    status.textContent='Demo response checked successfully for '+business+'. Nothing has been sent or saved. To collect real early-access requests, connect this form to a backend or form service before publishing.';
+    status.classList.add('show');
+    showToast('Demo form validated in this browser only.');
+  });
+  const menuBtn=$('mobileMenu'), nav=$('navLinks');
+  menuBtn.addEventListener('click',()=>{const open=nav.classList.toggle('open');menuBtn.setAttribute('aria-expanded',String(open));});
+  nav.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{nav.classList.remove('open');menuBtn.setAttribute('aria-expanded','false');}));
+})();
+</script>
+</body>
+</html>
+
