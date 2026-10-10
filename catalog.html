@@ -60,7 +60,7 @@ async function submitOrder(){
   if(!client||!merchantData){toast('The order service is not ready. Refresh the page and try again.');return;}
   submitting=true;$('submitOrderBtn').disabled=true;$('submitOrderBtn').textContent='Submitting…';$('orderStatus').textContent='Saving your request securely…';
   try{
-    const {data,error}=await client.rpc('submit_public_order',{
+    const {data,error}=await client.rpc('submit_public_order_with_tracking',{
       p_merchant_slug:merchantData.slug,
       p_customer_name:customerName,
       p_customer_phone:$('customerPhone').value.trim(),
@@ -70,16 +70,16 @@ async function submitOrder(){
     });
     if(error)throw error;
     const saved=Array.isArray(data)?data[0]:data;
-    if(!saved||typeof saved.order_number!=='string'||!saved.order_number)throw new Error('The server did not return an order reference. Check that the Stage 6 SQL migration ran successfully.');
+    if(!saved||typeof saved.order_number!=='string'||!saved.order_number)throw new Error('The server did not return an order reference. Check that the Stage 6 and Stage 7 SQL migrations ran successfully.');
     lastSubmittedOrder=saved;
     toggleRequestLock(true);
     $('submitOrderBtn').textContent='Request saved ✓';
-    $('orderStatus').textContent='Request saved. Reference: '+saved.order_number+'. The business can now review it in its OneQR Order Inbox. This is not yet a confirmed order.'+(saved.estimated_total!==null&&saved.estimated_total!==undefined?' Estimated subtotal: '+money(saved.estimated_total,saved.currency)+'.':' The business must confirm final pricing.');
+    const trackingReady=typeof saved.tracking_token==='string'&&/^[a-f0-9]{64}$/i.test(saved.tracking_token);if(trackingReady){$('trackOrderBtn').href='track.html?token='+encodeURIComponent(saved.tracking_token);$('trackOrderBtn').hidden=false;}else{$('trackOrderBtn').hidden=true;}$('orderStatus').textContent='Request saved. Reference: '+saved.order_number+'. The business can now review it in its OneQR Order Inbox. This is not yet a confirmed order.'+(saved.estimated_total!==null&&saved.estimated_total!==undefined?' Estimated subtotal: '+money(saved.estimated_total,saved.currency)+'.':' The business must confirm final pricing.')+(trackingReady?' Use “Track request status” to check the latest status.':' Your request was saved, but a tracking link was not returned. Save the reference and contact the business for updates.');
     $('whatsappOrderBtn').hidden=!waHref(merchantData.whatsapp||merchantData.public_phone);
     $('copyRequestBtn').disabled=false;
     $('startAnotherBtn').hidden=false;
     toast('Request saved · '+saved.order_number);
-  }catch(e){console.error(e);$('orderStatus').textContent='Could not save the request. '+(e.message||'Check the Stage 6 database migration and try again.');toast('Request was not saved.');}
+  }catch(e){console.error(e);$('orderStatus').textContent='Could not save the request. '+(e.message||'Check the Stage 6 and Stage 7 database migrations and try again.');toast('Request was not saved.');}
   finally{submitting=false;if(!lastSubmittedOrder){$('submitOrderBtn').disabled=false;$('submitOrderBtn').textContent='Submit request to OneQR';}}
 }
 function openOrderPanel(){if(cartQuantity()===0){toast('Add a product or service first.');return;}$('orderPanel').hidden=false;renderCartLines();$('orderPanel').scrollIntoView({behavior:'smooth',block:'start'});$('customerName').focus({preventScroll:true})}
@@ -96,6 +96,7 @@ const submitRow=el('div','submit-row');
 const submit=el('button','btn primary','Submit request to OneQR');submit.id='submitOrderBtn';submit.type='button';submit.addEventListener('click',()=>submitOrder());submitRow.appendChild(submit);
 const send=el('button','btn ghost','Notify business on WhatsApp ↗');send.id='whatsappOrderBtn';send.type='button';send.hidden=true;send.addEventListener('click',()=>{try{if(!lastSubmittedOrder){toast('Submit the request first.');return}const href=waHref(merchantData.whatsapp||merchantData.public_phone,requestMessage(lastSubmittedOrder.order_number));if(!href){toast('No WhatsApp number is configured. You can copy the request message.');return}const popup=window.open(href,'_blank');if(!popup){toast('Your browser blocked the WhatsApp tab. Use Copy request message instead.');return}try{popup.opener=null}catch(ignore){}toast('WhatsApp opened. Review the message and press Send yourself.')}catch(e){toast(e.message||'Could not prepare the WhatsApp message.')}});submitRow.appendChild(send);
 const copy=el('button','btn ghost','Copy request message');copy.id='copyRequestBtn';copy.type='button';copy.disabled=true;copy.addEventListener('click',async()=>{try{if(!lastSubmittedOrder){toast('Submit the request before copying its reference.');return}const ok=await copyText(requestMessage(lastSubmittedOrder.order_number));toast(ok?'Request and reference copied.':'Copy was blocked by your browser.')}catch(e){toast(e.message||'Could not prepare request.')}});submitRow.appendChild(copy);
+const trackLink=el('a','btn primary','Track request status ↗');trackLink.id='trackOrderBtn';trackLink.hidden=true;trackLink.rel='noopener noreferrer';submitRow.appendChild(trackLink);
 const newRequest=el('button','btn ghost','Start another request');newRequest.id='startAnotherBtn';newRequest.type='button';newRequest.hidden=true;newRequest.addEventListener('click',()=>{lastSubmittedOrder=null;toggleRequestLock(false);$('submitOrderBtn').disabled=false;$('submitOrderBtn').textContent='Submit request to OneQR';$('whatsappOrderBtn').hidden=true;$('copyRequestBtn').disabled=true;newRequest.hidden=true;$('orderStatus').textContent='Ready to submit a new request. Existing requests remain in the business inbox.';$('customerConsent').checked=false;});submitRow.appendChild(newRequest);
 order.appendChild(submitRow);const status=el('div','status');status.id='orderStatus';status.textContent='Your request will be stored securely so the business can review it in its OneQR Order Inbox. It will not be automatically confirmed.';order.appendChild(status);const fine=el('p','fineprint','Important: submitting saves a request for the business to review; it does not confirm an order. The business must confirm availability, final prices and fulfilment. OneQR does not take payment or reserve stock. By submitting, you agree to share the details you entered with this business.');order.appendChild(fine);main.appendChild(order);
 renderItems();updateDock();const contact=el('div','contact');if(merchant.public_phone){const a=el('a','btn','Call business');a.href='tel:'+safePhone(merchant.public_phone);contact.appendChild(a)}const whatsapp=waHref(merchant.whatsapp||merchant.public_phone);if(whatsapp){const a=el('a','btn ghost','WhatsApp business');a.href=whatsapp;a.target='_blank';a.rel='noopener noreferrer';contact.appendChild(a)}if(contact.children.length){const label=el('h2','headrow','Contact this business');main.append(label,contact)}const info=el('div','info');info.appendChild(el('strong','','Before you send. '));info.appendChild(document.createTextNode('Prices shown are estimates. Submit the request to OneQR so the business can review it in its inbox, then optionally notify the business through WhatsApp. The business will confirm stock, final prices and delivery or pickup details. OneQR does not collect payment or reserve stock.'));main.appendChild(info)}
@@ -106,5 +107,6 @@ init().catch(err=>{console.error(err);showEmpty('Something went wrong','The cata
 </script>
 </body>
 </html>
+
 
 
